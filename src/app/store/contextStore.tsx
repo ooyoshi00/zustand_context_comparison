@@ -1,21 +1,56 @@
 'use client';
 import { createContext, useContext, useState, ReactNode } from 'react';
 
-type StateType = {
-	count: number;
-	increment: () => void;
-};
+interface Todo {
+	id: number;
+	text: string;
+}
 
-const Context = createContext<StateType | undefined>(undefined);
+interface ContextState {
+	todos: Todo[];
+	buttonColor: string;
+	isModalOpen: boolean;
+	addTodo: (text: string) => void;
+	setButtonColor: (color: string) => void;
+	openModal: () => void;
+	closeModal: () => void;
+}
+
+const Context = createContext<ContextState | undefined>(undefined);
 
 export const ContextProvider = ({ children }: { children: ReactNode }) => {
-	const [count, setCount] = useState(0);
-	const increment = () => setCount((c) => c + 1);
-	return <Context.Provider value={{ count, increment }}>{children}</Context.Provider>;
+	const [todos, setTodos] = useState<Todo[]>([]);
+	const [buttonColor, setButtonColor] = useState('#3B82F6');
+	const [isModalOpen, setIsModalOpen] = useState(false);
+
+	const addTodo = (text: string) => {
+		setTodos([...todos, { id: Date.now(), text }]);
+	};
+
+	const openModal = () => setIsModalOpen(true);
+	const closeModal = () => setIsModalOpen(false);
+
+	return (
+		<Context.Provider
+			value={{
+				todos,
+				buttonColor,
+				isModalOpen,
+				addTodo,
+				setButtonColor,
+				openModal,
+				closeModal,
+			}}
+		>
+			{children}
+		</Context.Provider>
+	);
 };
 
 export const useCounterContext = () => {
 	const context = useContext(Context);
-	if (!context) throw new Error('useCounterContext must be used inside ContextProvider');
+	if (context === undefined) {
+		throw new Error('useCounterContext must be used within a ContextProvider');
+	}
 	return context;
 };
