@@ -11,6 +11,7 @@ interface TodoContainerProps {
   setButtonColor: (color: string) => void;
   openModal: () => void;
   closeModal: () => void;
+  saveToStorage: () => Promise<void>;
 }
 
 export const TodoContainer = ({
@@ -21,6 +22,7 @@ export const TodoContainer = ({
   setButtonColor,
   openModal,
   closeModal,
+  saveToStorage,
 }: TodoContainerProps) => {
   return (
     <div className="space-y-4">
@@ -28,12 +30,21 @@ export const TodoContainer = ({
 
       <Todo onAdd={addTodo} buttonColor={buttonColor} />
 
-      <button
-        onClick={openModal}
-        className="px-4 py-2 text-black bg-gray-200 rounded hover:bg-gray-300"
-      >
-        モーダルを開く
-      </button>
+      <div className="flex gap-4">
+        <button
+          onClick={openModal}
+          className="px-4 py-2 text-black bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+        >
+          モーダルを開く
+        </button>
+
+        <button
+          onClick={saveToStorage}
+          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 cursor-pointer"
+        >
+          一旦保存する
+        </button>
+      </div>
 
       <Modal
         isOpen={isModalOpen}

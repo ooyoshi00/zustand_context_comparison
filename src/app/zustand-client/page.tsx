@@ -1,17 +1,40 @@
 'use client';
 
-import { useZustandStore } from '../store/zustandClientStore';
+import { useZustandStore, useLoadInitialData } from '../store/zustandClientStore';
 import { Navigation } from '../components/Navigation';
 import { TodoContainer } from './components/TodoContainer';
+import { Loading } from '../components/Loading';
+import { useState, useCallback } from 'react';
 
 const TodoList = () => {
-	const todos = useZustandStore((state) => state.todos);
-	const buttonColor = useZustandStore((state) => state.buttonColor);
-	const isModalOpen = useZustandStore((state) => state.isModalOpen);
-	const addTodo = useZustandStore((state) => state.addTodo);
-	const setButtonColor = useZustandStore((state) => state.setButtonColor);
-	const openModal = useZustandStore((state) => state.openModal);
-	const closeModal = useZustandStore((state) => state.closeModal);
+	// 必要な値のみを取得
+	const todos = useZustandStore(state => state.todos);
+	const buttonColor = useZustandStore(state => state.buttonColor);
+	const isModalOpen = useZustandStore(state => state.isModalOpen);
+	const addTodo = useZustandStore(state => state.addTodo);
+	const setButtonColor = useZustandStore(state => state.setButtonColor);
+	const openModal = useZustandStore(state => state.openModal);
+	const closeModal = useZustandStore(state => state.closeModal);
+	const saveToStorage = useZustandStore(state => state.saveToStorage);
+
+	const [isLoading, setIsLoading] = useState(true);
+
+	// コールバックをメモ化
+	const handleLoadComplete = useCallback(() => {
+		setIsLoading(false);
+	}, []);
+
+	// 初期データの読み込み
+	useLoadInitialData(handleLoadComplete);
+
+	const handleSave = useCallback(async () => {
+		await saveToStorage();
+		alert('保存が完了しました');
+	}, [saveToStorage]);
+
+	if (isLoading) {
+		return <Loading />;
+	}
 
 	return (
 		<TodoContainer
@@ -22,6 +45,7 @@ const TodoList = () => {
 			setButtonColor={setButtonColor}
 			openModal={openModal}
 			closeModal={closeModal}
+			saveToStorage={handleSave}
 		/>
 	);
 };

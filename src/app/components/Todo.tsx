@@ -27,7 +27,7 @@ export const Todo = ({ onAdd, buttonColor }: TodoProps) => {
         />
         <button
           onClick={handleAdd}
-          className="px-4 py-2 rounded text-white"
+          className="px-4 py-2 rounded text-white cursor-pointer"
           style={{ backgroundColor: buttonColor }}
         >
           追加

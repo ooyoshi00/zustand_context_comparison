@@ -1,12 +1,13 @@
 'use client';
 import { create } from 'zustand';
+import { useEffect } from 'react';
 
 interface Todo {
 	id: number;
 	text: string;
 }
 
-interface ZustandState {
+interface ZustandClientState {
 	todos: Todo[];
 	buttonColor: string;
 	isModalOpen: boolean;
@@ -14,9 +15,10 @@ interface ZustandState {
 	setButtonColor: (color: string) => void;
 	openModal: () => void;
 	closeModal: () => void;
+	saveToStorage: () => Promise<void>;
 }
 
-export const useZustandStore = create<ZustandState>((set) => ({
+export const useZustandStore = create<ZustandClientState>((set) => ({
 	todos: [],
 	buttonColor: '#3B82F6',
 	isModalOpen: false,
@@ -27,4 +29,43 @@ export const useZustandStore = create<ZustandState>((set) => ({
 	setButtonColor: (color: string) => set({ buttonColor: color }),
 	openModal: () => set({ isModalOpen: true }),
 	closeModal: () => set({ isModalOpen: false }),
+	saveToStorage: async () => {
+		const state = useZustandStore.getState();
+		try {
+			await fetch('/api/storage', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					todos: state.todos,
+					buttonColor: state.buttonColor,
+				}),
+			});
+		} catch (error) {
+			console.error('データの保存に失敗しました:', error);
+		}
+	},
 }));
+
+// 初期データの読み込み用のカスタムフック
+export const useLoadInitialData = (onLoadComplete?: () => void) => {
+	useEffect(() => {
+		const loadData = async () => {
+			try {
+				const response = await fetch('/api/storage');
+				const data = await response.json();
+				useZustandStore.setState({
+					todos: data.todos,
+					buttonColor: data.buttonColor,
+				});
+			} catch (error) {
+				console.error('データの読み込みに失敗しました:', error);
+			} finally {
+				onLoadComplete?.();
+			}
+		};
+
+		loadData();
+	}, [onLoadComplete]);
+};
