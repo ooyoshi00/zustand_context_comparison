@@ -73,10 +73,8 @@ const reducer = (state: State, action: Action): State => {
 
 const Context = createContext<ContextState | undefined>(undefined);
 
-export const ContextProvider = ({ children }: { children: React.ReactNode }) => {
-	const [state, dispatch] = useReducer(reducer, initialState);
-
-	// 初期データの読み込み
+// 初期データの読み込み用のカスタムフック
+export const useLoadInitialContextData = (dispatch: React.Dispatch<Action>, onLoadComplete?: () => void) => {
 	useEffect(() => {
 		const loadData = async () => {
 			try {
@@ -86,11 +84,17 @@ export const ContextProvider = ({ children }: { children: React.ReactNode }) => 
 				dispatch({ type: 'SET_BUTTON_COLOR_FROM_STORAGE', payload: data.buttonColor });
 			} catch (error) {
 				console.error('データの読み込みに失敗しました:', error);
+			} finally {
+				onLoadComplete?.();
 			}
 		};
 
 		loadData();
-	}, []);
+	}, [dispatch, onLoadComplete]);
+};
+
+export const ContextProvider = ({ children }: { children: React.ReactNode }) => {
+	const [state, dispatch] = useReducer(reducer, initialState);
 
 	const addTodo = (text: string) => {
 		dispatch({ type: 'ADD_TODO', payload: text });

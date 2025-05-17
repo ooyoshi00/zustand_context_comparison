@@ -17,7 +17,7 @@ interface ZustandServerState {
 	saveToStorage: () => Promise<void>;
 }
 
-export const useZustandStore = create<ZustandServerState>((set) => ({
+export const useZustandServerStore = create<ZustandServerState>((set) => ({
 	todos: [],
 	buttonColor: '#3B82F6',
 	isModalOpen: false,
@@ -29,7 +29,7 @@ export const useZustandStore = create<ZustandServerState>((set) => ({
 	openModal: () => set({ isModalOpen: true }),
 	closeModal: () => set({ isModalOpen: false }),
 	saveToStorage: async () => {
-		const state = useZustandStore.getState();
+		const state = useZustandServerStore.getState();
 		try {
 			await fetch('/api/storage', {
 				method: 'POST',
@@ -48,13 +48,13 @@ export const useZustandStore = create<ZustandServerState>((set) => ({
 }));
 
 // 初期データの読み込み用のカスタムフック
-export const useLoadInitialData = (onLoadComplete?: () => void) => {
+export const useLoadInitialServerData = (onLoadComplete?: () => void) => {
 	useEffect(() => {
 		const loadData = async () => {
 			try {
 				const response = await fetch('/api/storage');
 				const data = await response.json();
-				useZustandStore.setState({
+				useZustandServerStore.setState({
 					todos: data.todos,
 					buttonColor: data.buttonColor,
 				});
@@ -70,4 +70,4 @@ export const useLoadInitialData = (onLoadComplete?: () => void) => {
 };
 
 // export initial state for hydration
-export type StoreType = ReturnType<typeof useZustandStore>;
+export type StoreType = ReturnType<typeof useZustandServerStore>;

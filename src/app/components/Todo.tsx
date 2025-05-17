@@ -23,7 +23,7 @@ export const Todo = ({ onAdd, buttonColor }: TodoProps) => {
 					type='text'
 					value={text}
 					onChange={(e) => setText(e.target.value)}
-					className='border p-2 rounded'
+					className='border p-2 rounded bg-white text-black border-gray-700'
 					placeholder='新しいタスクを入力'
 				/>
 				<button onClick={handleAdd} className='px-4 py-2 rounded text-white cursor-pointer' style={{ backgroundColor: buttonColor }}>
